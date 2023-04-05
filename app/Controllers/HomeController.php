@@ -4,6 +4,6 @@ namespace App\Controllers;
 class HomeController {
     public function index()
     {
-        renderView('test', ["test" => "Hello123"]);
+        renderView('test', 'base');
     }
 }
