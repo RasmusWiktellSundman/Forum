@@ -4,9 +4,23 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="<?php echo $_ENV['BASE_URL'] ?>/css/style.css">
     <title>Test</title>
 </head>
 <body>
-    <?php echo $content ?>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="<?php echo $_ENV['BASE_URL'] ?>">Hem</a></li>
+                <!-- TODO: Kategorier från databas -->
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <?php echo $content ?>
+    </main>
+    <footer>
+        <p class="copyright">© 2022 Rasmus Wiktell Sundman</p>
+    </footer>
 </body>
 </html>
