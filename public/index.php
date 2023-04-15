@@ -27,7 +27,7 @@ $router->get('/', 'HomeController@index');
 // Renderar 404 sida ifall användarens angiven path inte finns
 $router->set404(function() {
     header('HTTP/1.1 404 Not Found');
-    renderView('errors/404');
+    renderView('errors/404', 'base');
 });
 
 // Aktiverar router
