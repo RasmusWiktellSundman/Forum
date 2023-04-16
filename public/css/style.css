@@ -1,20 +1,38 @@
-h1, h2, h3, h4, h5, h6, p, li {
-  color: #ededed;
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --darkest: #101010;
+  --darker: #242424;
+  --dark: #2a2a2a;
+  --light: #ededed;
+}
+
+h1, h2, h3, h4, h5, h6, p, li, label {
+  color: var(--light);
   line-height: 140%;
 }
-  
 
 html, body {
   margin: 0;
   /* Keep footer at bottom */
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
   min-height: 100vh;
-  background-color: #242424;
+  min-width: 100vw;
+  background-color: var(--darker);
 }
 
 main {
-  margin: 0 20px;
+  margin: 0 auto;
+  padding: 0 20px;
+  max-width: 1600px;
+  width: 100%;
+}
+
+header {
+  width: 100%;
 }
 
 nav {
@@ -23,7 +41,7 @@ nav {
   width: 100%;
   z-index: 100;
   box-sizing: border-box;
-  background: #101010;
+  background: var(--darkest);
 }
 nav ul {
   padding-left: 5px;
@@ -37,7 +55,7 @@ nav ul li a {
   display: inline-block;
   padding: 8px;
   text-decoration: none;
-  color: #ededed;
+  color: var(--light);
   font-weight: bold;
   font-size: 1.5rem;
 }
@@ -45,15 +63,65 @@ nav ul li:hover a {
   color: #5ccc61;
 }
 
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form input {
+  max-width: 250px;
+  background-color: #555;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--darkest);
+  color: var(--light);
+}
+
+form input[type="submit"] {
+  width: fit-content;
+  border-radius: 1rem;
+  background: #f3f0f0;
+  color: black;
+  margin-top: .5rem;
+  font-weight: bold;
+}
+
+form input[type="submit"]:hover {
+  cursor: pointer;
+  background-color: white;
+}
+
+form label {
+  margin-top: 0.8rem;
+}
+
+form label:first-child {
+  margin-top: 0;
+}
+
+form .required::after {
+  content: ' *';
+  color: rgb(142, 0, 0);
+}
+
+form .error {
+  color: rgb(235, 0, 0);
+  margin: 0;
+}
+
 /* Footer */
 footer {
-  background-color: #101010;
-  padding: 40px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--darkest);
   font-size: 1.1em;
   margin-top: auto;
+  width: 100%;
+  height: 100px;
 }
 footer .copyright {
   color: #b4b4b4;
-  margin-bottom: 0;
+  margin: 0;
   text-align: center;
 }
