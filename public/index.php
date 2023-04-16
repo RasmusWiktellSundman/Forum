@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 use App\Lib\Database;
 
@@ -9,12 +10,17 @@ require __DIR__ . '/../vendor/autoload.php';
 define('VIEWS_PATH', __DIR__.'/../views');
 $_ENV = parse_ini_file('../.env');
 
+// Startar session
+session_start();
+
 // Create Router instance
 $router = new \Bramus\Router\Router();
 
 // Definerar routes
 $router->setNamespace('\App\Controllers');
 $router->get('/', 'HomeController@index');
+$router->get('/register', 'Authentication\RegisterController@index');
+$router->post('/register', 'Authentication\RegisterController@store');
 
 // Renderar 404 sida ifall användarens angiven path inte finns
 $router->set404(function() {

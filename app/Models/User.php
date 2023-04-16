@@ -1,0 +1,168 @@
+<?php
+namespace App\Models;
+
+use App\Lib\Database;
+use App\Lib\Exceptions\DuplicateModelException;
+use DateTime;
+use InvalidArgumentException;
+use PDO;
+
+class User {
+    private static array $valid_db_columns = ["id", "email", "username", "firstname", "lastname", "password", "admin", "created_at", "updated_at"];
+    
+    private string $id;
+    private string $email;
+    private string $username;
+    private string $firstname;
+    private string $lastname;
+    private string $hashed_password;
+    private bool $admin = false;
+    private DateTime $createdAt;
+    private DateTime $updatedAt;
+
+    public function index()
+    {
+        renderView('test', 'base');
+    }
+
+    /**
+     * Spara objektet till presistent lagring
+     *
+     * @param Type|null $var
+     * @return User
+     */
+    public static function create(string $email, string $username, string $firstname, string $lastname, string $password, bool $admin = false): User
+    {
+        // password_hash hashar lösenordet, samt saltar automatiskt.
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+
+        // Använder inte en loop för check av användarnamn/e-post då stavningen är olika (-en/-et), la till metod för validering av kolumn värde istället
+        // Kollar så användarnamn inte redan används
+        if(self::exsistsColumnValue('username', $username)) {
+            throw new DuplicateModelException('username', "Användarnamnet är upptaget");
+        }
+
+        // Kollar så e-posten inte redan används
+        if(self::exsistsColumnValue('email', $email)) {
+            throw new DuplicateModelException('email', "E-postadressen är upptagen");
+        }
+
+        // Sparar i databas
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("INSERT INTO user (email, username, firstname, lastname, password, admin, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW());");
+        $stmt->execute([$email, $username, $firstname, $lastname, $hashed_password, (int) $admin]);
+        $stmt->closeCursor();
+
+        // Returnera User objekt med angiven data
+        $now = new DateTime();
+        return new User(
+            (int) $conn->lastInsertId(),
+            $email, 
+            $username, 
+            $firstname, 
+            $lastname, 
+            $hashed_password, 
+            $now, 
+            $now, 
+            $admin
+        );
+    }
+
+    /**
+     * Kollar om ett specifikt värde i en specifik kolumn finns
+     *
+     * @param string $column Kolumn att leta i
+     * @param mixed $value Värdet att leta efter
+     * @return boolean Om värdet finns i kolumnen
+     */
+    public static function exsistsColumnValue(string $column, mixed $value): bool
+    {
+        // En kolumn kan inte bindas i ett prepared statment, validerar därför att kolumnen finns.
+        if(!in_array($column, self::$valid_db_columns, true)) {
+            throw new InvalidArgumentException("Invalid column");
+        }
+
+        $stmt = Database::getConnection()->prepare("SELECT COUNT(*) FROM user WHERE $column = ?;");
+        $stmt->execute([$value]);
+        // Hämta antal rader från count
+        $count = $stmt->fetchColumn();
+        $stmt->closeCursor();
+
+        return $count > 0;
+    }
+
+    /**
+     * Skapar User-objekt från databas rad
+     *
+     * @param array $row Array innehållandes data från en databasrad
+     * @return User
+     */
+    private static function userFromStatmentResultRow(array $row): User
+    {
+        $createdAt = DateTime::createFromFormat('Y-m-d H:i:s', $row['created_at']);
+        $updatedAt = DateTime::createFromFormat('Y-m-d H:i:s', $row['created_at']);
+        return new User(
+            (int) $row['id'],
+            $row['email'],
+            $row['username'],
+            $row['firstname'],
+            $row['lastname'],
+            $row['password'],
+            $createdAt,
+            $updatedAt,
+            (bool) $row['admin']
+        );
+    }
+
+    // Konstruktorn är privat då create ska användas av externa klasser, för att även lagras presistent.
+    private function __construct(int $id, string $email, string $username, string $firstname, string $lastname, string $hashed_password, DateTime $createdAt, DateTime $updatedAt, bool $admin = false) {
+        $this->id = $id;
+        $this->email = $email;
+        $this->username = $username;
+        $this->firstname = $firstname;
+        $this->lastname = $lastname;
+        $this->hashed_password = $hashed_password;
+        $this->admin = $admin;
+        $this->createdAt = $createdAt;
+        $this->updatedAt = $updatedAt;
+    }
+
+    // Getters
+    public function getId(): string {
+        return $this->id;
+    }
+    
+    public function getEmail(): string {
+        return $this->email;
+    }
+
+    public function getUsername(): string {
+        return $this->username;
+    }
+
+    public function getFirstname(): string {
+        return $this->firstname;
+    }
+
+    public function getLastname(): string {
+        return $this->lastname;
+    }
+
+    public function getHashedPassword(): string {
+        return $this->hashed_password;
+    }
+
+    public function isAdmin(): bool {
+        return $this->admin;
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function getUpdatedAt(): DateTime
+    {
+        return $this->updatedAt;
+    }
+}

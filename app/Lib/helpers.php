@@ -26,3 +26,18 @@ function renderView(string $fileName, ?string $layoutName, array $variables = []
         require VIEWS_PATH . '/' . $fileName . '.php';
     }
 }
+
+function renderError(?array $errors, string $errorName) {
+    if(isset($errors[$errorName])) {
+        ?>
+        <p class="error"><?php echo htmlspecialchars($errors[$errorName]) ?></p>
+        <?php
+    }
+}
+
+function test_input($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+}
