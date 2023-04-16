@@ -1,5 +1,6 @@
 <?php
-use \App\Controllers\HomeController;
+
+use App\Lib\Database;
 
 // Läser in composers autoload fil.
 require __DIR__ . '/../vendor/autoload.php';
@@ -23,3 +24,6 @@ $router->set404(function() {
 
 // Aktiverar router
 $router->run();
+
+// Stänger databasanslutning (om en upprättats)
+Database::closeConnection();
