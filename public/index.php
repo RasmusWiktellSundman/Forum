@@ -26,6 +26,7 @@ $router->get('/register', 'Authentication\RegisterController@index');
 $router->post('/register', 'Authentication\RegisterController@store');
 $router->get('/login', 'Authentication\AuthenticationController@index');
 $router->post('/login', 'Authentication\AuthenticationController@store');
+$router->get('/logout', 'Authentication\LogoutController@destroy');
 
 // Renderar 404 sida ifall användarens angiven path inte finns
 $router->set404(function() {
