@@ -30,4 +30,5 @@
     <input type="password" id="password_confirm" name="password_confirm" placeholder="Upprepa lösenord" required value="<?php echo $previous['password'] ?? '' ; ?>">
 
     <input type="submit" value="Skapa konto">
+    <a href="./login">Logga in</a>
 </form>

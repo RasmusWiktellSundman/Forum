@@ -9,6 +9,11 @@ use App\Models\User;
 class RegisterController {
     public function index()
     {
+        if(Auth::isLoggedIn()) {
+            // Användaren är redan inloggad, dirigera till startsidan
+            http_response_code(301); // Moved permanently
+            header('Location: '.$_ENV['BASE_URL']);
+        }
         renderView('auth/register', 'base');
     }
 
@@ -20,8 +25,8 @@ class RegisterController {
      */
     public function store()
     {
-        // Array innehållandes godkänd användardata
         try {
+            // Array innehållandes godkänd användardata
             $validated = $this->validateStoreInput($_POST);
         } catch (InvalidUserInput $ex) {
             // Visa vy med errors vid ogiltig input och avbryt exekvering
@@ -50,6 +55,10 @@ class RegisterController {
             ]);
             return;
         }
+
+        // Loggar in användaren med det nya kontot
+        Auth::login($validated['email'], $validated['password']);
+
 
         // Dirigera till startsidan
         http_response_code(301); // Moved permanently

@@ -18,9 +18,14 @@ $router = new \Bramus\Router\Router();
 
 // Definerar routes
 $router->setNamespace('\App\Controllers');
+// Generella routes
 $router->get('/', 'HomeController@index');
+
+// Autentiserings routes
 $router->get('/register', 'Authentication\RegisterController@index');
 $router->post('/register', 'Authentication\RegisterController@store');
+$router->get('/login', 'Authentication\AuthenticationController@index');
+$router->post('/login', 'Authentication\AuthenticationController@store');
 
 // Renderar 404 sida ifall användarens angiven path inte finns
 $router->set404(function() {

@@ -69,6 +69,52 @@ class User {
     }
 
     /**
+     * Hämtar användare från presistent lagring baserat på e-post och lösenord
+     *
+     * @param string $email E-post
+     * @param string $password Lösenord i klartext
+     * @return User|null User om email och lösenord stämde, annars null
+     */
+    public static function getByEmailAndPassword(string $email, string $password): User|null
+    {
+        $stmt = Database::getConnection()->prepare("SELECT * FROM user WHERE email = ?;");
+        $stmt->execute([$email]);
+        $row = $stmt->fetch();
+        $stmt->closeCursor();
+        // Ingen användare med given e-post finns
+        if($row === false) {
+            return null;
+        }
+        
+        // Kollar om angivet lösenord inte stämmer
+        if(!password_verify($password, $row['password'])) {
+            return null;
+        }
+
+        return self::userFromStatmentResultRow($row);
+    }
+
+    /**
+     * Hämtar användare från presistent lagring baserat id
+     *
+     * @param string $id Användarens id
+     * @return User|null User om email och lösenord stämde, annars null
+     */
+    public static function getById(int $id): User|null
+    {
+        $stmt = Database::getConnection()->prepare("SELECT * FROM user WHERE id = ?;");
+        $stmt->execute([$id]);
+        $row = $stmt->fetch();
+        $stmt->closeCursor();
+        // Ingen användare med given e-post finns
+        if($row === false) {
+            return null;
+        }
+
+        return self::userFromStatmentResultRow($row);
+    }
+
+    /**
      * Kollar om ett specifikt värde i en specifik kolumn finns
      *
      * @param string $column Kolumn att leta i
