@@ -1,3 +1,9 @@
+<?php
+
+use App\Lib\Auth;
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,6 +19,18 @@
             <ul>
                 <li><a href="<?php echo $_ENV['BASE_URL'] ?>">Hem</a></li>
                 <!-- TODO: Kategorier från databas -->
+                <?php
+                    if(Auth::isLoggedIn()) {
+                        ?>
+                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/logout">Logga ut</a></li>
+                        <?php
+                    } else {
+                        ?>
+                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/login">Logga in</a></li>
+                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/register">Registrera</a></li>
+                        <?php
+                    }
+                ?>
             </ul>
         </nav>
     </header>
