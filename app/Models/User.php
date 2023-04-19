@@ -5,10 +5,9 @@ use App\Lib\Database;
 use App\Lib\Exceptions\DuplicateModelException;
 use DateTime;
 use InvalidArgumentException;
-use PDO;
 
-class User {
-    private static array $valid_db_columns = ["id", "email", "username", "firstname", "lastname", "password", "admin", "created_at", "updated_at"];
+class User extends Model {
+    protected static array $valid_db_columns = ["id", "email", "username", "firstname", "lastname", "password", "admin", "created_at", "updated_at"];
     
     private string $id;
     private string $email;
@@ -19,11 +18,6 @@ class User {
     private bool $admin = false;
     private DateTime $createdAt;
     private DateTime $updatedAt;
-
-    public function index()
-    {
-        renderView('test', 'base');
-    }
 
     /**
      * Spara objektet till presistent lagring
@@ -112,29 +106,6 @@ class User {
         }
 
         return self::userFromStatmentResultRow($row);
-    }
-
-    /**
-     * Kollar om ett specifikt värde i en specifik kolumn finns
-     *
-     * @param string $column Kolumn att leta i
-     * @param mixed $value Värdet att leta efter
-     * @return boolean Om värdet finns i kolumnen
-     */
-    public static function exsistsColumnValue(string $column, mixed $value): bool
-    {
-        // En kolumn kan inte bindas i ett prepared statment, validerar därför att kolumnen finns.
-        if(!in_array($column, self::$valid_db_columns, true)) {
-            throw new InvalidArgumentException("Invalid column");
-        }
-
-        $stmt = Database::getConnection()->prepare("SELECT COUNT(*) FROM user WHERE $column = ?;");
-        $stmt->execute([$value]);
-        // Hämta antal rader från count
-        $count = $stmt->fetchColumn();
-        $stmt->closeCursor();
-
-        return $count > 0;
     }
 
     /**

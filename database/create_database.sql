@@ -12,3 +12,14 @@ create table if not exists user (
 	created_at  datetime NOT NULL,
 	updated_at  datetime NOT NULL
 );
+
+create table if not exists category (
+	id                  bigint(11) unsigned AUTO_INCREMENT primary key,
+	title               varchar(45) NOT NULL,
+	description         varchar(128) NULL,
+	show_in_navigation  tinyint NOT NULL,
+	created_at          datetime NOT NULL,
+	updated_at          datetime NOT NULL 
+ );
+
+select * from user;

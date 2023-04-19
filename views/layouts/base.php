@@ -1,6 +1,7 @@
 <?php
 
 use App\Lib\Auth;
+use App\Models\User;
 
 ?>
 
@@ -24,6 +25,7 @@ use App\Lib\Auth;
                         ?>
                         <li><a href="<?php echo $_ENV['BASE_URL'] ?>/logout">Logga ut</a></li>
                         <?php
+                        User::getTableName();
                     } else {
                         ?>
                         <li><a href="<?php echo $_ENV['BASE_URL'] ?>/login">Logga in</a></li>
