@@ -61,6 +61,21 @@ class AuthenticationController {
     }
 
     /**
+     * Loggar ut den inloggade användaren
+     *
+     * @return void
+     */
+    public function destroy()
+    {
+        if(Auth::isLoggedIn())
+            Auth::logout();
+
+        // Dirigera till startsidan
+        http_response_code(301); // Moved permanently
+        header('Location: '.$_ENV['BASE_URL']);
+    }
+
+    /**
      * Validerar användarens indata
      *
      * @param array $input Användarens indata
