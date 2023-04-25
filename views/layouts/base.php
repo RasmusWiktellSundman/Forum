@@ -1,6 +1,8 @@
 <?php
 
 use App\Lib\Auth;
+use App\Models\Category;
+use App\Models\User;
 
 ?>
 
@@ -30,6 +32,15 @@ use App\Lib\Auth;
                         <li><a href="<?php echo $_ENV['BASE_URL'] ?>/register">Registrera</a></li>
                         <?php
                     }
+
+                foreach (Category::getAll() as $category) {
+                    if($category->getShowInNavigation()) {
+                        $title = htmlspecialchars($category->getTitle());
+                        ?>
+                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/category?category=<?php echo $title; ?>"><?php echo $title; ?></a></li>
+                        <?php
+                    }
+                }
                 ?>
             </ul>
         </nav>

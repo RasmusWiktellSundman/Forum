@@ -21,6 +21,10 @@ $router->setNamespace('\App\Controllers');
 // Generella routes
 $router->get('/', 'HomeController@index');
 
+// Kategori routes
+$router->get('/category', 'CategoryController@index');
+$router->post('/category', 'CategoryController@store');
+
 // Autentiserings routes
 $router->get('/register', 'Authentication\RegisterController@index');
 $router->post('/register', 'Authentication\RegisterController@store');

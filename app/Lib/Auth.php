@@ -20,6 +20,9 @@ class Auth {
             return null;
         }
 
+        // Skapar nytt session id, beskriv varför...
+        session_regenerate_id();
+
         // Sparar endast id i session, då resterande information kan ändras. Om den ändras vill jag inte behöva uppdatera sessionen också, då det riskerar att missas och därmed ha olika version av datan. 
         // Istället sparas variabeln $logedInUser som endast är giltig under ett anrop
         $_SESSION['userId'] = $user->getId();
