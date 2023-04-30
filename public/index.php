@@ -22,8 +22,13 @@ $router->setNamespace('\App\Controllers');
 $router->get('/', 'HomeController@index');
 
 // Kategori routes
-$router->get('/category', 'CategoryController@index');
+$router->get('/category/create', 'CategoryController@create');
+$router->get('/category/(\d+)', 'CategoryController@index');
 $router->post('/category', 'CategoryController@store');
+
+// Tråd routes
+$router->get('/topic/create', 'TopicController@create');
+$router->post('/topic', 'TopicController@store');
 
 // Autentiserings routes
 $router->get('/register', 'Authentication\RegisterController@index');

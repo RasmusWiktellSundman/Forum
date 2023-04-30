@@ -35,6 +35,17 @@ function renderError(?array $errors, string $errorName) {
     }
 }
 
+/**
+ * Skriver ut text till skärmen, använder htmlspecialchars för att undvika xss
+ *
+ * @param string $text
+ * @return void
+ */
+function renderText(string $text): void
+{
+    echo htmlspecialchars($text);
+}
+
 function test_input($data) {
     $data = trim($data);
     $data = stripslashes($data);

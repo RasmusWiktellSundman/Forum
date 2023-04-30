@@ -7,10 +7,30 @@ use App\Lib\Exceptions\InvalidUserInput;
 use App\Models\Category;
 
 class CategoryController {
-    public function index()
+    public function index($category)
+    {
+        $category = Category::getById($category);
+        if($category == null) {
+            http_response_code(404);
+            renderView('errors/404', 'base');
+            return;
+        }
+
+        renderView("category", "base", [
+            "category" => $category,
+            "topics" => $category->getTopics()
+        ]);
+    }
+
+    /**
+     * Sida med formulär för att skapa ny kategori
+     *
+     * @return void
+     */
+    public function create()
     {
         if(!Auth::isLoggedIn() || !Auth::user()->isAdmin()) {
-            http_response_code(403); // Moved permanently
+            http_response_code(403); // Åtkomst nekad
             renderView('errors/403', 'base');
             return;
         }
@@ -24,6 +44,12 @@ class CategoryController {
      */
     public function store()
     {
+        if(!Auth::isLoggedIn() || !Auth::user()->isAdmin()) {
+            http_response_code(403); // Åtkomst nekad
+            renderView('errors/403', 'base');
+            return;
+        }
+
         try {
             // Array innehållandes godkänd användardata
             $validated = $this->validateStoreInput($_POST);

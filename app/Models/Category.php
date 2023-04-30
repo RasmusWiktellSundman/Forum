@@ -19,7 +19,7 @@ class Category {
      * Spara objektet till presistent lagring
      *
      * @param Type|null $var
-     * @return User
+     * @return Category
      */
     public static function create(string $title, string $description, bool $showInNavigation): Category
     {
@@ -61,7 +61,7 @@ class Category {
      * Hämtar användare från presistent lagring baserat id
      *
      * @param string $id Användarens id
-     * @return User|null User om email och lösenord stämde, annars null
+     * @return Category|null 
      */
     public static function getById(int $id): Category|null
     {
@@ -80,8 +80,7 @@ class Category {
     /**
      * Alla kategorier från presistent lagring
      *
-     * @param string $id Användarens id
-     * @return Category[] User om email och lösenord stämde, annars null
+     * @return Category[]
      */
     public static function getAll(): array
     {
@@ -97,10 +96,10 @@ class Category {
     }
 
     /**
-     * Skapar User-objekt från databas rad
+     * Skapar category-objekt från databas rad
      *
      * @param array $row Array innehållandes data från en databasrad
-     * @return User
+     * @return Category
      */
     private static function cateogryFromStatmentResultRow(array $row): Category
     {
@@ -139,8 +138,18 @@ class Category {
         return $count > 0;
     }
 
+    /**
+     * Hämtar alla trådar som tillhör denna kategori
+     *
+     * @return Topic[]
+     */
+    public function getTopics(): array
+    {
+        return Topic::getByCategory($this);
+    }
+
     // Getters
-    public function getId(): string {
+    public function getId(): int {
         return $this->id;
     }
 

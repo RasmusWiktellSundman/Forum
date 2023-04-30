@@ -68,8 +68,8 @@ form {
   flex-direction: column;
 }
 
-form input {
-  max-width: 250px;
+form input, form select {
+  max-width: 80ch;
   background-color: #555;
   padding: 8px 12px;
   border-radius: 8px;
@@ -107,6 +107,41 @@ form .required::after {
 form .error {
   color: rgb(235, 0, 0);
   margin: 0;
+}
+
+form textarea {
+  max-width: 80ch;
+  background-color: #555;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--darkest);
+  color: var(--light);
+}
+
+/* Tabeller */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px;
+}
+
+th {
+  background-color: #222;
+  color: #fff;
+}
+
+tr:nth-child(even) {
+  background-color: #333;
+}
+
+td {
+  background-color: #444;
+  color: #fff;
 }
 
 /* Footer */

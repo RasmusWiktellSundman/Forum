@@ -21,6 +21,18 @@ create table if not exists category (
 	created_at          datetime NOT NULL,
 	updated_at          datetime NOT NULL 
  );
+ 
+ create table if not exists topic (
+	id                  bigint(11) unsigned AUTO_INCREMENT primary key,
+    category_id         bigint(11) unsigned NOT NULL,
+    author_id           bigint(11) unsigned NOT NULL,
+	title               varchar(45) NOT NULL,
+	created_at          datetime NOT NULL,
+	updated_at          datetime NOT NULL,
+    foreign key (category_id) references category(id),
+    foreign key (author_id) references user(id)
+ );
 
 drop table category;
 select * from user;
+select * from topic;

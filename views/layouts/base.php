@@ -20,26 +20,25 @@ use App\Models\User;
         <nav>
             <ul>
                 <li><a href="<?php echo $_ENV['BASE_URL'] ?>">Hem</a></li>
-                <!-- TODO: Kategorier från databas -->
                 <?php
-                    if(Auth::isLoggedIn()) {
-                        ?>
-                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/logout">Logga ut</a></li>
-                        <?php
-                    } else {
-                        ?>
-                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/login">Logga in</a></li>
-                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/register">Registrera</a></li>
-                        <?php
-                    }
-
                 foreach (Category::getAll() as $category) {
                     if($category->getShowInNavigation()) {
                         $title = htmlspecialchars($category->getTitle());
+                        $id = htmlspecialchars($category->getId());
                         ?>
-                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/category?category=<?php echo $title; ?>"><?php echo $title; ?></a></li>
+                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/category/<?php echo $id; ?>"><?php echo $title; ?></a></li>
                         <?php
                     }
+                }
+                if(Auth::isLoggedIn()) {
+                    ?>
+                    <li><a href="<?php echo $_ENV['BASE_URL'] ?>/logout">Logga ut</a></li>
+                    <?php
+                } else {
+                    ?>
+                    <li><a href="<?php echo $_ENV['BASE_URL'] ?>/login">Logga in</a></li>
+                    <li><a href="<?php echo $_ENV['BASE_URL'] ?>/register">Registrera</a></li>
+                    <?php
                 }
                 ?>
             </ul>

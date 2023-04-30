@@ -1,11 +1,20 @@
 <h1>Kategorier</h1>
-<?php
-
-use App\Models\Category;
-
-foreach (Category::getAll() as $category) {
-    ?>
-    <h2><?php echo htmlspecialchars($category->getTitle()) ?></h2>
+<table>
+    <thead>
+        <th>Titel</th>
+        <th>Senaste inlägg</th>
+    </thead>
+    <tbody>
     <?php
-}
-?>
+    foreach ($categories as $category) {
+        ?>
+        
+        <tr onclick="window.location = 'category/<?php renderText($category->getId()); ?>'" style="cursor: pointer;">
+            <td><?php renderText($category->getTitle()) ?></td>
+            <td>Kommer snart</td>
+        </tr>
+        <?php
+    }
+    ?>
+    </tbody>
+</table>

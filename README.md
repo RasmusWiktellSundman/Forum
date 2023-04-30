@@ -11,10 +11,20 @@ public/index.php - Startsidan dit alla anrop kommer, den innehåller en router s
 Webbroten ska vara satt till public mappen alternativt ska en .htaccess fil i kodroten finnas om Apache2 används
 
 # Starta från källkod
+```
 git clone ...
 cd Forum
 composer install
 composer dump-autoload
+```
+
+## Nginx
+Om Nginx används som webbserver behöver följande finnas i server-blocket
+```nginx
+location / {
+    try_files $uri $uri/ /index.php?$query_string;
+}
+```
 
 # Tredjepartskod
 https://github.com/bramus/router
