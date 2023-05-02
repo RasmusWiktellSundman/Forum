@@ -109,6 +109,16 @@ class Topic {
         );
     }
 
+    /**
+     * Hämtar alla inlägg kopplat till denna tråd
+     *
+     * @return Post[]
+     */
+    public function getPosts(): array
+    {
+        return Post::getByTopic($this);
+    }
+
     // Getters
     public function getId(): int {
         return $this->id;

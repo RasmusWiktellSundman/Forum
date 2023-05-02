@@ -173,6 +173,26 @@ class User {
         $this->updatedAt = $updatedAt;
     }
 
+    /**
+     * Hela namnet består av förnamn efternamn
+     *
+     * @return string
+     */
+    public function getFullName(): string
+    {
+        return $this->firstname . ' ' . $this->lastname;
+    }
+
+    /**
+     * Visningsnamnet består av Förnamn efternamn (användarnamn)
+     *
+     * @return string
+     */
+    public function getDisplayName(): string
+    {
+        return $this->firstname . ' ' . $this->lastname . ' (' . $this->username . ')';
+    }
+
     // Getters
     public function getId(): int {
         return $this->id;

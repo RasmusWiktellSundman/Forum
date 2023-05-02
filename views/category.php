@@ -23,7 +23,7 @@ if(Auth::isLoggedIn()) {
         /** @var Topic[] $topics */
         foreach ($topics as $topic) {
             ?>
-            <tr style="cursor: pointer;">
+            <tr onclick="window.location = '<?php renderText($category->getId()); ?>/<?php renderText($topic->getId()); ?>'" style="cursor: pointer;">
                 <td><?php renderText($topic->getTitle()) ?></td>
                 <td><?php renderText($topic->getAuthor()->getUsername()) ?></td>
                 <td>Kommer snart</td>

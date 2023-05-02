@@ -1,0 +1,57 @@
+#wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 20px;
+}
+
+#wrapper h2 {
+  font-size: 1.3rem;
+  font-weight: normal
+}
+
+/* Inlägg */
+#posts .post {
+    padding: 10px;
+    max-width: 80ch;
+    border: 2px solid black;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+  }
+  
+  #posts .post:nth-child(2n) {
+    background: #3e3e3e;
+  }
+  
+  #posts .post:nth-child(2n + 1) {
+    background: #343434;
+  }
+  
+  #posts .post .header {
+    display: flex;
+    justify-content: space-between
+  }
+  
+  #posts .header p {
+    margin: 0;
+  }
+
+#posts .author {
+  font-weight: bold;
+}
+
+#posts .publish_date {
+  color: #d0d0d0;
+}
+
+/* Skapa nytt inlägg */
+#posts #message {
+    resize: vertical;
+}
+
+#message-form-title {
+    margin-bottom: 0;
+}
+
+#message-form label:first-child {
+    margin-top: 0.4rem;
+}

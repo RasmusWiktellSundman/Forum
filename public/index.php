@@ -26,9 +26,11 @@ $router->get('/category/create', 'CategoryController@create');
 $router->get('/category/(\d+)', 'CategoryController@index');
 $router->post('/category', 'CategoryController@store');
 
-// Tråd routes
+// Tråd och inlägg routes
+$router->post('/topic/(\d+)', 'PostController@store');
 $router->get('/topic/create', 'TopicController@create');
 $router->post('/topic', 'TopicController@store');
+$router->get('/category/(\d+)/(\d+)', 'TopicController@index');
 
 // Autentiserings routes
 $router->get('/register', 'Authentication\RegisterController@index');

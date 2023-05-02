@@ -4,9 +4,37 @@ namespace App\Controllers;
 use App\Lib\Auth;
 use App\Lib\Exceptions\InvalidUserInput;
 use App\Models\Category;
+use App\Models\Post;
 use App\Models\Topic;
 
 class TopicController {
+    /**
+     * Visar en tråd
+     *
+     * @param int $category_id
+     * @param int $topic_id
+     * @return void
+     */
+    public function index(int $category_id, int $topic_id): void
+    {
+        $topic = Topic::getById($topic_id);
+        if($topic == null) {
+            http_response_code(404);
+            renderView('errors/404', 'base');
+            return;
+        }
+
+        renderView('topic/topic', 'base', [
+            'topic' => $topic,
+            'posts' => $topic->getPosts()
+        ]);
+    }
+
+    /**
+     * Visar sidan för att skapa ny tråd
+     *
+     * @return void
+     */
     public function create()
     {
         // Kollar om användaren är inloggad
@@ -28,6 +56,11 @@ class TopicController {
         ]);
     }
 
+    /**
+     * Skapar ny tråd
+     *
+     * @return void
+     */
     public function store()
     {
         // Kollar om användaren är inloggad
@@ -50,15 +83,19 @@ class TopicController {
             return;
         }
         
-        // Försöker skapa användare
-        Topic::create(
+        // Försöker skapa tråd
+        $topic = Topic::create(
             $validated['title'],
             Auth::user(),
             $validated['category']
         );
 
-        // Todo skapa inlägg i tråden
-        // Todo visa tråd
+        // Skapar första inlägget i tråden
+        Post::create($validated['message'], Auth::user(), $topic);
+
+        // Visar trådens egen sida
+        http_response_code(301); // Moved permanently
+        header('Location: '.$_ENV['BASE_URL'].'/category/'.$validated['category']->getId().'/'.$topic->getId());
     }
 
     /**
