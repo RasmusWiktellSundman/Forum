@@ -30,15 +30,12 @@ class PostController {
             $validated = $this->validateStoreInput($_POST);
         } catch (InvalidUserInput $ex) {
             // Visa vy med errors vid ogiltig input och avbryt exekvering
-            // Om tråde kunde hittas visas den med felmeddelande, annars visas en 404 sida
-            if(isset($validated['topic'])) {
-                renderView('topic/topic', 'base', [
-                    'errors' => $ex->getErrors(),
-                    'previous' => $ex->getValidated(),
-                    'topic' => $topic,
-                    'posts' => $topic->getPosts()
-                ]);
-            }
+            renderView('topic/topic', 'base', [
+                'errors' => $ex->getErrors(),
+                'previous' => $ex->getValidated(),
+                'topic' => $topic,
+                'posts' => $topic->getPosts()
+            ]);
             return;
         }
         
@@ -67,7 +64,7 @@ class PostController {
         $validated = [];
 
         if(!isset($input['message']) || $input['message'] == '') {
-            $errors['username'] = "Meddelande är obligatoriskt";
+            $errors['message'] = "Meddelande är obligatoriskt";
         } else if(strlen($_POST['message']) > 4095) {
             $errors['message'] = "Meddelandet får inte vara mer än 4095 tecken";
         } else {

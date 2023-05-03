@@ -1,10 +1,4 @@
-#wrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 20px;
-}
-
-#wrapper h2 {
+h2 {
   font-size: 1.3rem;
   font-weight: normal
 }
