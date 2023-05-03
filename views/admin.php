@@ -1,5 +1,6 @@
 <h1>Skapa kategori</h1>
 <form action="<?php echo $_ENV['BASE_URL'] ?>/category" method="post">
+    <p class="error">* Obligatoriskt fält</p>
     <label for="title" class="required">Titel</label>
     <input type="text" id="title" name="title" placeholder="Titel" required value="<?php echo $previous['title'] ?? '' ; ?>">
     <?php renderError($errors ?? null, 'title') ?>

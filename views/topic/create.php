@@ -1,5 +1,6 @@
 <h1>Skapa tråd</h1>
 <form action="<?php echo $_ENV['BASE_URL'] ?>/topic" method="post">
+    <p class="error">* Obligatoriskt fält</p>
     <label for="category">Kategori</label>
     <select name="category" id="category">
         <?php
