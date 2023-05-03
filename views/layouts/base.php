@@ -48,7 +48,7 @@ use App\Models\User;
         <?php echo $content ?>
     </main>
     <footer>
-        <p class="copyright">© 2022 Rasmus Wiktell Sundman</p>
+        <p class="copyright">© 2023 Rasmus Wiktell Sundman</p>
     </footer>
 </body>
 </html>
