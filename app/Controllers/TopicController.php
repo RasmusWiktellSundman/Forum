@@ -111,7 +111,7 @@ class TopicController {
         $validated = [];
 
         if(!isset($input['title']) || $input['title'] == '') {
-            $errors['username'] = "Titeln är obligatoriskt";
+            $errors['title'] = "Titeln är obligatoriskt";
         } else if(strlen($_POST['title']) > 45) {
             $errors['title'] = "Titeln får inte vara mer än 45 tecken";
         } else if(!preg_match('/^[\wå-öÅ-Ö _-]+$/', $_POST['title'])) {
@@ -121,7 +121,7 @@ class TopicController {
         }
 
         if(!isset($input['message']) || $input['message'] == '') {
-            $errors['username'] = "Meddelande är obligatoriskt";
+            $errors['message'] = "Meddelande är obligatoriskt";
         } else if(strlen($_POST['message']) > 4095) {
             $errors['message'] = "Meddelandet får inte vara mer än 4095 tecken";
         } else {
