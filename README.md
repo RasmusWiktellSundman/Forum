@@ -1,5 +1,5 @@
 # Forum
-Ett forum om programmering
+Ett forum om programmering. Systemet utvecklades som slutuppgift i gymnasiekursen Webbserverprogrammering 1.
 
 # Kodstruktur
 public - Publikt tillgängliga filer, t.ex css och javascript.
@@ -14,6 +14,8 @@ Webbroten ska vara satt till public mappen alternativt ska en .htaccess fil i ko
 ```
 git clone ...
 cd Forum
+cp .env.example .env
+  Uppdatera .env
 composer install
 composer dump-autoload
 ```
