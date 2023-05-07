@@ -34,8 +34,3 @@ https://github.com/bramus/router
 
 # Övrigt
 Satt upp autmoatisk inläsning av php klasser enligt https://vegibit.com/how-to-use-autoloading-in-php/
-
-Varför View klass?
-    Enkapsulerar vad vyn kan komma åt (vyn kan endast använda variabler kontrollern  uttryckligen skickats till den)
-    Möjlighet att utöka med mer funktionalitet utan att behöva uppdatera alla ställen där en vy visas.
-    Enhetligt sätt att rendera vyer
