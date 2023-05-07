@@ -7,7 +7,13 @@ use App\Lib\Exceptions\InvalidUserInput;
 use App\Models\Category;
 
 class CategoryController {
-    public function index($category)
+    /**
+     * Visar lista på trådar inom en kategori
+     *
+     * @param int $category Id på kategori att visa
+     * @return void
+     */
+    public function index(int $category): void
     {
         $category = Category::getById($category);
         if($category == null) {
@@ -20,21 +26,6 @@ class CategoryController {
             "category" => $category,
             "topics" => $category->getTopics()
         ]);
-    }
-
-    /**
-     * Sida med formulär för att skapa ny kategori
-     *
-     * @return void
-     */
-    public function create()
-    {
-        if(!Auth::isLoggedIn() || !Auth::user()->isAdmin()) {
-            http_response_code(403); // Åtkomst nekad
-            renderView('errors/403', 'base');
-            return;
-        }
-        renderView('admin', 'base');
     }
 
     /**
@@ -55,7 +46,9 @@ class CategoryController {
             $validated = $this->validateStoreInput($_POST);
         } catch (InvalidUserInput $ex) {
             // Visa vy med errors vid ogiltig input och avbryt exekvering
-            renderView('admin', 'base', [
+            renderView('home', 'base', [
+                'categories' => Category::getAll(),
+                'showCategoryModal' => true,
                 'errors' => $ex->getErrors(),
                 'previous' => $ex->getValidated()
             ]);
@@ -63,24 +56,26 @@ class CategoryController {
         }
 
         try {
-            // Försöker skapa användare
+            // Försöker skapa kategori
             Category::create(
                 $validated['title'], 
                 $validated['description'],
-                isset($_POST['show_in_navigation'])
+                $validated['show_in_nav']
             );
         } catch (DuplicateModelException $ex) {
-            // Skapande av användare misslyckades, visar felmeddelande
-            renderView('admin', 'base', [
+            // Skapande av kategori misslyckades, visar felmeddelande
+            renderView('home', 'base', [
+                'categories' => Category::getAll(),
+                'showCategoryModal' => true,
                 'errors' => [$ex->getDuplicateColumn() => $ex->getMessage()],
                 'previous' => $validated
             ]);
             return;
         }
 
-        renderView('admin', 'base', [
-            'success' => true
-        ]);
+        // Dirigerar tillbaka till startsidan
+        http_response_code(301); // Moved permanently
+        header('Location: '.$_ENV['BASE_URL']);
     }
 
     /**
@@ -112,6 +107,8 @@ class CategoryController {
         } else {
             $validated['description'] = test_input($_POST['description']);
         }
+
+        $validated['show_in_nav'] = isset($_POST['show_in_navigation']);
 
         if(isset($errors)) {
             throw new InvalidUserInput($errors, $validated);

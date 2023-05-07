@@ -78,6 +78,7 @@ form input, form select {
 }
 
 form input[type="submit"], button {
+  border: none;
   width: fit-content;
   border-radius: 1rem;
   background: #f3f0f0;
@@ -89,14 +90,15 @@ form input[type="submit"], button {
 button {
   padding: 0.6rem 0.3rem;
 }
-button:hover {
+button:hover, form input[type="submit"]:hover {
   background-color: #f3f0f0c6;
   cursor: pointer;
 }
 
-form input[type="submit"]:hover {
-  cursor: pointer;
-  background-color: white;
+form input:disabled {
+  background-color: #4040407a;
+  color: gray;
+  cursor: not-allowed;
 }
 
 form label {
@@ -126,6 +128,11 @@ form textarea {
   color: var(--light);
 }
 
+form input[type="checkbox"] {
+  display: inline;
+  width: fit-content;
+}
+
 /* Tabeller */
 table {
   border-collapse: collapse;
@@ -153,6 +160,21 @@ tr:nth-child(odd) {
 
 td {
   color: #fff;
+}
+
+/* Dialoger */
+dialog {
+  background-color: #2b2a2a;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+dialog::backdrop {
+  background-color: #00000062;
+}
+
+dialog h2 {
+  margin: 0;
 }
 
 /* Footer */

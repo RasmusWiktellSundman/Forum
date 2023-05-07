@@ -22,7 +22,6 @@ $router->setNamespace('\App\Controllers');
 $router->get('/', 'HomeController@index');
 
 // Kategori routes
-$router->get('/category/create', 'CategoryController@create');
 $router->get('/category/(\d+)', 'CategoryController@index');
 $router->post('/category', 'CategoryController@store');
 
