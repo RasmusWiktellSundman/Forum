@@ -20,30 +20,31 @@ create table if not exists category (
 	show_in_navigation  tinyint NOT NULL,
 	created_at          datetime NOT NULL,
 	updated_at          datetime NOT NULL 
- );
+);
  
  create table if not exists topic (
-	id                  bigint(11) unsigned AUTO_INCREMENT primary key,
-    category_id         bigint(11) unsigned NOT NULL,
-    author_id           bigint(11) unsigned NOT NULL,
-	title               varchar(45) NOT NULL,
-	created_at          datetime NOT NULL,
-	updated_at          datetime NOT NULL,
-    foreign key (category_id) references category(id),
-    foreign key (author_id) references user(id)
- );
+	id                        bigint(11) unsigned AUTO_INCREMENT primary key,
+    category_id               bigint(11) unsigned NOT NULL,
+    author_id                 bigint(11) unsigned NOT NULL,
+	title                     varchar(45) NOT NULL,
+	created_at                datetime NOT NULL,
+	updated_at                datetime NOT NULL,
+	foreign key (category_id) references category(id),
+	foreign key (author_id)   references user(id)
+);
  
  create table if not exists post (
-	id                  bigint(11) unsigned AUTO_INCREMENT primary key,
-    topic_id            bigint(11) unsigned NOT NULL,
-    author_id           bigint(11) unsigned NOT NULL,
-	message             varchar(4095) NOT NULL,
-	created_at          datetime NOT NULL,
-	updated_at          datetime NOT NULL,
-    foreign key (topic_id) references topic(id),
-    foreign key (author_id) references user(id)
- );
+	id                      bigint(11) unsigned AUTO_INCREMENT primary key,
+	topic_id                bigint(11) unsigned NOT NULL,
+	author_id               bigint(11) unsigned NOT NULL,
+	message                 varchar(4095) NOT NULL,
+	created_at              datetime NOT NULL,
+	updated_at              datetime NOT NULL,
+	foreign key (topic_id)  references topic(id),
+	foreign key (author_id) references user(id)
+);
 
+select * from category;
 select * from user;
 select * from topic;
 select * from post;
