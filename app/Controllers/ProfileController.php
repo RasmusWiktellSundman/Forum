@@ -1,57 +1,68 @@
 <?php
-namespace App\Controllers\Authentication;
+namespace App\Controllers;
 
 use App\Lib\Auth;
 use App\Lib\Exceptions\DuplicateModelException;
 use App\Lib\Exceptions\InvalidUserInput;
 use App\Models\User;
 
-class RegisterController {
+class ProfileController {
+    /**
+     * Visa profilsida
+     *
+     * @return void
+     */
     public function index()
     {
-        if(Auth::isLoggedIn()) {
-            // Användaren är redan inloggad, dirigera till startsidan
-            http_response_code(301); // Moved permanently
-            header('Location: '.$_ENV['BASE_URL']);
+        // Kollar att användaren är inloggad
+        if(!Auth::isLoggedIn()) {
+            http_response_code(403);
+            renderView('errors/403', 'base');
+            return;
         }
-        renderView('auth/register', 'base');
+        renderView('profile', 'base', [
+            'user' => Auth::user()
+        ]);
     }
 
     /**
-     * Skapa ny användare
+     * Uppdatera inloggad användare
      * Användarens anrop ska göras med POST
      *
      * @return void
      */
     public function store()
     {
+        // Kollar att användaren är inloggad
+        if(!Auth::isLoggedIn()) {
+            http_response_code(403);
+            renderView('errors/403', 'base');
+            return;
+        }
+
         try {
             // Array innehållandes godkänd användardata
             $validated = $this->validateStoreInput($_POST);
         } catch (InvalidUserInput $ex) {
             // Visa vy med errors vid ogiltig input och avbryt exekvering
-            renderView('auth/register', 'base', [
+            renderView('profile', 'base', [
                 'errors' => $ex->getErrors(),
-                'previous' => $ex->getValidated()
+                'previous' => $ex->getValidated(),
+                'user' => Auth::user()
             ]);
             return;
         }
 
         try {
-            // Försöker skapa användare
-            User::create(
-                $validated['email'], 
-                $validated['username'],
-                $validated['firstname'],
-                $validated['lastname'],
-                $validated['password'],
-                false
-            );
+            // Försöker uppdatera inloggad användare
+            $user = Auth::user();
+            // $user->set
         } catch (DuplicateModelException $ex) {
             // Skapande av användare misslyckades, visar felmeddelande
-            renderView('auth/register', 'base', [
+            renderView('profile', 'base', [
                 'errors' => [$ex->getDuplicateColumn() => $ex->getMessage()],
-                'previous' => $validated
+                'previous' => $validated,
+                'user' => Auth::user()
             ]);
             return;
         }
@@ -124,7 +135,7 @@ class RegisterController {
         } else if($input['password'] != $input['password_confirm']) {
             $errors['password'] = "De två angiva lösenorden är inte samma";
         } else {
-            $validated['password'] = test_input($input['password']);
+            $validated['password'] = test_input($_POST['password']);
         }
 
         if(isset($errors)) {

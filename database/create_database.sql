@@ -44,6 +44,7 @@ create table if not exists category (
     foreign key (author_id) references user(id)
  );
 
+select * from category;
 select * from user;
 select * from topic;
 select * from post;

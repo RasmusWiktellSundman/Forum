@@ -99,6 +99,12 @@ form input[type="submit"]:hover {
   background-color: white;
 }
 
+form input:disabled {
+  background-color: #4040407a;
+  color: gray;
+  cursor: not-allowed;
+}
+
 form label {
   margin-top: 0.8rem;
 }
@@ -153,6 +159,38 @@ tr:nth-child(odd) {
 
 td {
   color: #fff;
+}
+
+/* Modal */
+.modal.open {
+  display: block;
+}
+
+.modal {
+  display: none;
+  position: absolute;
+  max-width: 800px;
+  background-color: #101010;
+  /* Centrerar */
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.modal, .modal * {
+  z-index: 100;
+}
+
+.modal .shadow {
+  z-index: 99;
+  content: '';
+  background-color: red;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0
+
 }
 
 /* Footer */
