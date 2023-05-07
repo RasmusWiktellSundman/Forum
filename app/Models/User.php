@@ -193,25 +193,83 @@ class User {
         return $this->firstname . ' ' . $this->lastname . ' (' . $this->username . ')';
     }
 
-    // Getters
+    // Getters och setters
     public function getId(): int {
         return $this->id;
+    }
+
+    public function setId(int $id): void {
+        $this->id = $id;
     }
     
     public function getEmail(): string {
         return $this->email;
     }
 
+    public function setEmail(string $email): void {
+        if($email == '') {
+            throw new InvalidArgumentException("E-post är obligatoriskt");
+        } else if(strlen($email) > 128) {
+            throw new InvalidArgumentException("E-post får inte vara mer än 128 tecken");
+        } else if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException("Ogiltigt format på e-postaddress");
+        }
+
+        // Kollar så e-posten inte redan används av annan användare
+        if(self::exsistsColumnValue('email', $email) && $this->email != $email) {
+            throw new DuplicateModelException('email', "E-postadressen är upptagen");
+        }
+        $this->email = $email;
+    }
+
     public function getUsername(): string {
         return $this->username;
+    }
+
+    public function setUsername(string $username): void {
+        if($username == '') {
+            throw new InvalidArgumentException("Användarnamn är obligatoriskt");
+        } else if(strlen($username) > 45) {
+            throw new InvalidArgumentException("Användarnamnet får inte vara mer än 45 tecken");
+        } else if(!preg_match('/^[\w_-]+$/', $username)) {
+            throw new InvalidArgumentException("Användarnamnet får endast innehålla a-z, A-Z, 0-9, - och _");
+        }
+
+        // Kollar så användarnamn inte redan används
+        if(self::exsistsColumnValue('username', $username) && $this->username != $username) {
+            throw new DuplicateModelException('username', "Användarnamnet är upptaget");
+        }
+        $this->username = $username;
     }
 
     public function getFirstname(): string {
         return $this->firstname;
     }
 
+    public function setFirstname(string $firstname): void {
+        if($firstname == '') {
+            throw new InvalidArgumentException("Förnamn är obligatoriskt");
+        } else if(strlen($firstname) > 45) {
+            throw new InvalidArgumentException("Förnamnet får inte vara mer än 45 tecken");
+        } else if(!preg_match('/^[\wå-öÅ-Ö _-]+$/', $firstname)) {
+            throw new InvalidArgumentException("Förnamn får endast innehålla a-ö, A-Ö, 0-9, -, _ och mellanrum");
+        }
+        $this->firstname = $firstname;
+    }
+
     public function getLastname(): string {
         return $this->lastname;
+    }
+
+    public function setLastname(string $lastname): void {
+        if(!isset($lastname) || $lastname == '') {
+            throw new InvalidArgumentException("Efternamn är obligatoriskt");
+        } else if(strlen($lastname) > 45) {
+            throw new InvalidArgumentException("Efternamnet får inte vara mer än 45 tecken");
+        } else if(!preg_match('/^[\wå-öÅ-Ö _-]+$/', $lastname)) {
+            throw new InvalidArgumentException("Efternamn får endast innehålla a-z, A-Z, å-ö, Å-Ö, 0-9, -, _ och mellanrum");
+        }
+        $this->lastname = $lastname;
     }
 
     public function getHashedPassword(): string {

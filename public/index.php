@@ -20,6 +20,7 @@ $router = new \Bramus\Router\Router();
 $router->setNamespace('\App\Controllers');
 // Generella routes
 $router->get('/', 'HomeController@index');
+$router->get('/profile', 'ProfileController@index');
 
 // Kategori routes
 $router->get('/category/(\d+)', 'CategoryController@index');

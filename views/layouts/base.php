@@ -32,6 +32,7 @@ use App\Models\User;
                 }
                 if(Auth::isLoggedIn()) {
                     ?>
+                    <li><a href="<?php echo $_ENV['BASE_URL'] ?>/profile">Profil</a></li>
                     <li><a href="<?php echo $_ENV['BASE_URL'] ?>/logout">Logga ut</a></li>
                     <?php
                 } else {
