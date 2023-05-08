@@ -1,7 +1,10 @@
 <link rel="stylesheet" href="<?php echo $_ENV['BASE_URL'] ?>/css/auth.css">
-<h1>Profil</h1>
+<div class="flex" style="gap: 10px">
+    <h1>Profil</h1>
+    <?php $user->renderProfileImage(); ?>
+</div>
 <div class="flex" style="gap: 30px">
-    <form action="<?php echo $_ENV['BASE_URL'] ?>/profile" method="post" id="profileForm" class="flex flex-column">
+    <form action="<?php echo $_ENV['BASE_URL'] ?>/profile" method="post" enctype="multipart/form-data" id="profileForm" class="flex flex-column">
         <h2>Kontoinformation</h2>
         <p class="error">* Obligatoriskt fält</p>
         <label for="accountId">KontoID</label>
@@ -25,6 +28,10 @@
         <label for="lastname" class="required">Efternamn</label>
         <input type="text" id="lastname" name="lastname" placeholder="Efternamn" required value="<?php echo $previous['lastname'] ?? $user->getLastname() ; ?>">
         <?php renderError($errors ?? null, 'lastname') ?>
+
+        <label for="profile_image">Profilbild</label>
+        <input type="file" id="profile_image" name="profile_image" accept="image/png, image/jpeg">
+        <?php renderError($errors ?? null, 'profile_image') ?>
     
         <?php if(isset($updatedSuccessfully)) { ?>
             <p class="success">Uppdaterat!</p>

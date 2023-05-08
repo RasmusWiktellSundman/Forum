@@ -9,10 +9,14 @@ use App\Lib\Auth;
 <section id="posts">
     <?php
     foreach ($posts as $post) {
+        $author = $post->getAuthor();
         ?>
         <div class="post">
             <div class="header">
-                <p class="author"><?php renderText($post->getAuthor()->getDisplayName()) ?></p>
+                <div class="flex" style="gap: 5px">
+                    <?php $author->renderProfileImage(20) ?>
+                    <p class="author"><?php renderText($author->getDisplayName()) ?></p>
+                </div>
                 <p class="publish_date"><?php renderText($post->getCreatedAt()->format("Y-m-d H:i:s")) ?></p>
             </div>
             <p><?php echo nl2br(htmlspecialchars($post->getMessage())) ?></p>

@@ -51,6 +51,16 @@ class ProfileController {
                 $errors[$property] = $ex->getMessage();
             }
         }
+
+        // Uppdaterar profilbild
+        if(isset($_FILES['profile_image'])) {
+            try {
+                $user->setProfileImage($_FILES['profile_image']);
+            } catch (InvalidArgumentException | DuplicateModelException $ex) {
+                $errors['profile_image'] = $ex->getMessage();
+            }
+        }
+
         if(empty($errors)) {
             // Uppdaterar databas
             $user->update();

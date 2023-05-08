@@ -18,6 +18,8 @@ class User {
     private string $lastname;
     private string $hashed_password;
     private bool $admin = false;
+    private ?string $profileImage;
+    private ?string $profileImageType;
     private DateTime $createdAt;
     private DateTime $updatedAt;
 
@@ -150,12 +152,14 @@ class User {
             $createdAt,
             $updatedAt,
             true, // Lösenordet är redan hashat
+            $row['profile_image'],
+            $row['profile_image_type'],
             (bool) $row['admin']
         );
     }
 
     // Konstruktorn är privat då create ska användas av externa klasser, för att även lagras presistent.
-    private function __construct(int $id, string $email, string $username, string $firstname, string $lastname, string $password, DateTime $createdAt, DateTime $updatedAt, bool $passwordIsHashed, bool $admin = false) {
+    private function __construct(int $id, string $email, string $username, string $firstname, string $lastname, string $password, DateTime $createdAt, DateTime $updatedAt, bool $passwordIsHashed, ?string $profileImage = null, ?string $profileImageType = null, bool $admin = false) {
         // Uppdaterar värdet med hjälp av loop, för att inte behöva upprepa try-catch för varje set metod, men ändå kunna få en lista på alla fel.
         foreach (["id", "username", "email", "firstname", "lastname", "admin", "createdAt", "updatedAt"] as $property) {
             try {
@@ -165,6 +169,10 @@ class User {
                 $errors[$property] = $ex->getMessage();
             }
         }
+
+        // Sätter profilbild om given
+        $this->profileImage = $profileImage;
+        $this->profileImageType = $profileImageType;
 
         // Sätter lösenord, antingen ett redan hashat lösenord, eller ett som behöver hashas.
         if($passwordIsHashed) {
@@ -191,8 +199,15 @@ class User {
     public function update(): void
     {
         $conn = Database::getConnection();
-        $stmt = $conn->prepare("UPDATE user SET email=?, username=?, firstname=?, lastname=?, password=?, admin=?, updated_at=NOW() WHERE id=?;");
-        $stmt->execute([$this->email, $this->username, $this->firstname, $this->lastname, $this->hashed_password, (int) $this->admin, $this->id]);
+        if(isset($this->profileImage) && isset($this->profileImageType)) {
+            $sql = "UPDATE user SET email=?, username=?, firstname=?, lastname=?, password=?, profile_image=?, profile_image_type=?, admin=?, updated_at=NOW() WHERE id=?;";
+            $values = [$this->email, $this->username, $this->firstname, $this->lastname, $this->hashed_password, $this->profileImage, $this->profileImageType, (int) $this->admin, $this->id];
+        } else {
+            $sql = "UPDATE user SET email=?, username=?, firstname=?, lastname=?, password=?, admin=?, updated_at=NOW() WHERE id=?;";
+            $values = [$this->email, $this->username, $this->firstname, $this->lastname, $this->hashed_password, (int) $this->admin, $this->id];
+        }
+        $stmt = $conn->prepare($sql);
+        $stmt->execute($values);
         $stmt->closeCursor();
 
         // Sätter uppdateringstid till nu
@@ -217,6 +232,20 @@ class User {
     public function getDisplayName(): string
     {
         return $this->firstname . ' ' . $this->lastname . ' (' . $this->username . ')';
+    }
+
+    /**
+     * Renderar profilbild, om användaren inte har en profilbild används standardbilden.
+     *
+     * @return void
+     */
+    public function renderProfileImage(int $sideLength = 100)
+    {
+        if($this->getProfileImageType() == null || $this->getProfileImage() == null) {
+            echo "<img src='" . $_ENV['BASE_URL'] . "/images/default_user.svg' alt='Standardprofilbild' width='".$sideLength."' height='".$sideLength."'>";
+        } else {
+            echo "<img src='data:".$this->getProfileImageType() . ";charset=utf8;base64,". base64_encode($this->getProfileImage()) . "' alt='Profilbild' width='".$sideLength."' height='".$sideLength."' /> ";
+        }
     }
 
     // Getters och setters
@@ -362,5 +391,44 @@ class User {
     private function setUpdatedAt(DateTime $updatedAt): void
     {
         $this->createdAt = $updatedAt;
+    }
+
+    public function getProfileImage(): ?string
+    {
+        return $this->profileImage;
+    }
+
+    public function getProfileImageType(): ?string
+    {
+        return $this->profileImageType;
+    }
+
+    /**
+     * Sätter profilbild
+     *
+     * @param array $image Samma format som $_FILES, fast för en specifik input
+     * @return void
+     */
+    public function setProfileImage(array $image): void
+    {
+        // Valliderar att uppladdad fil är en bild (bara för att filändelsen är bildformat, måste det inte vara en bild)
+        $check = getimagesize($image['tmp_name']);
+        if(!$check) {
+            throw new InvalidArgumentException('Uppladdad profilbild måste vara en bild!');
+        }
+
+        // Kontrollerar filstorlek
+        if ($image['size'] > $_ENV['PROFILE_IMAGE_MAX_SIZE']) {
+            throw new InvalidArgumentException('Bilden är för stor!');
+        }
+
+        // Kontrollera filtyp
+        $imageFileType = strtolower(pathinfo($image['name'],PATHINFO_EXTENSION));
+        if(!in_array($imageFileType, ['png', 'jpg', 'jpeg'])) {
+            throw new InvalidArgumentException('Ogiltig filtyp, endast png, jpg och jpeg är tillåtna.');
+        }
+
+        $this->profileImage = file_get_contents($image['tmp_name']);
+        $this->profileImageType = test_input($image['type']);
     }
 }
