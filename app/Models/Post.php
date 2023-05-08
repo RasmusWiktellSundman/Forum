@@ -4,13 +4,11 @@ namespace App\Models;
 use App\Lib\Database;
 use DateTime;
 
-class Post {
+class Post extends Model {
     private int $id;
     private int $author_id;
     private int $topic_id;
     private string $message;
-    private DateTime $createdAt;
-    private DateTime $updatedAt;
 
     /**
      * Spara objektet till presistent lagring
@@ -41,12 +39,11 @@ class Post {
     // Konstruktorn är privat då create ska användas av externa klasser, för att även lagras presistent.
     // Konstruktorn har ingen lokik för presistent lagring, då den även används för att skapa objekt från databasen
     private function __construct(int $id, string $message, User $author, Topic $topic, DateTime $createdAt, DateTime $updatedAt) {
+        parent::__construct($createdAt, $updatedAt);
         $this->id = $id;
         $this->message = $message;
         $this->author_id = $author->getId();
         $this->topic_id = $topic->getId();
-        $this->createdAt = $createdAt;
-        $this->updatedAt = $updatedAt;
     }
 
     /**
@@ -126,15 +123,5 @@ class Post {
     public function getMessage(): string
     {
         return $this->message;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
     }
 }

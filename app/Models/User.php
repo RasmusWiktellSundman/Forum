@@ -8,7 +8,7 @@ use DateTime;
 use InvalidArgumentException;
 use PDO;
 
-class User {
+class User extends Model {
     private static array $valid_db_columns = ["id", "email", "username", "firstname", "lastname", "password", "admin", "created_at", "updated_at"];
     
     private string $id;
@@ -20,8 +20,6 @@ class User {
     private bool $admin = false;
     private ?string $profileImage;
     private ?string $profileImageType;
-    private DateTime $createdAt;
-    private DateTime $updatedAt;
 
     public function index()
     {
@@ -160,8 +158,9 @@ class User {
 
     // Konstruktorn är privat då create ska användas av externa klasser, för att även lagras presistent.
     private function __construct(int $id, string $email, string $username, string $firstname, string $lastname, string $password, DateTime $createdAt, DateTime $updatedAt, bool $passwordIsHashed, ?string $profileImage = null, ?string $profileImageType = null, bool $admin = false) {
+        parent::__construct($createdAt, $updatedAt);
         // Uppdaterar värdet med hjälp av loop, för att inte behöva upprepa try-catch för varje set metod, men ändå kunna få en lista på alla fel.
-        foreach (["id", "username", "email", "firstname", "lastname", "admin", "createdAt", "updatedAt"] as $property) {
+        foreach (["id", "username", "email", "firstname", "lastname", "admin"] as $property) {
             try {
                 $setMethod = "set".$property;
                 $this->$setMethod($$property);
@@ -371,27 +370,6 @@ class User {
         $this->admin = $admin;
     }
 
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    // Metoden är privat eftersom update eller create ska användas externt, för att synkronisera med databasen.
-    private function setCreatedAt(DateTime $createdAt): void
-    {
-        $this->createdAt = $createdAt;
-    }
-
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
-    }
-
-    // Metoden är privat eftersom update eller create ska användas externt, för att synkronisera med databasen.
-    private function setUpdatedAt(DateTime $updatedAt): void
-    {
-        $this->createdAt = $updatedAt;
-    }
 
     public function getProfileImage(): ?string
     {

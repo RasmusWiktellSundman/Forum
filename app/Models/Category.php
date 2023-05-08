@@ -6,14 +6,12 @@ use App\Lib\Exceptions\DuplicateModelException;
 use DateTime;
 use InvalidArgumentException;
 
-class Category {
+class Category extends Model {
     private static array $valid_db_columns = ["id", "title", "description", "show_in_navigation", "created_at", "updated_at"];
     private string $id;
     private string $title;
     private string $description;
     private bool $showInNavigation;
-    private DateTime $createdAt;
-    private DateTime $updatedAt;
 
     /**
      * Spara objektet till presistent lagring
@@ -49,12 +47,11 @@ class Category {
 
     // Konstruktorn är privat då create ska användas av externa klasser, för att även lagras presistent.
     private function __construct(int $id, string $title, string $description, bool $showInNavigation, DateTime $createdAt, DateTime $updatedAt) {
+        parent::__construct($createdAt, $updatedAt);
         $this->id = $id;
         $this->title = $title;
         $this->description = $description;
         $this->showInNavigation = $showInNavigation;
-        $this->createdAt = $createdAt;
-        $this->updatedAt = $updatedAt;
     }
 
     /**
@@ -163,13 +160,5 @@ class Category {
 
     public function getShowInNavigation(): bool {
         return $this->showInNavigation;
-    }
-
-    public function getCreatedAt(): DateTime {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): DateTime {
-        return $this->updatedAt;
     }
 }

@@ -5,13 +5,11 @@ use App\Lib\Database;
 use App\Lib\Exceptions\DuplicateModelException;
 use DateTime;
 
-class Topic {
+class Topic extends Model {
     private int $id;
     private int $author_id;
     private int $category_id;
     private string $title;
-    private DateTime $createdAt;
-    private DateTime $updatedAt;
 
     /**
      * Spara objektet till presistent lagring
@@ -42,12 +40,11 @@ class Topic {
     // Konstruktorn är privat då create ska användas av externa klasser, för att även lagras presistent.
     // Konstruktorn har ingen lokik för presistent lagring, då den även används för att skapa objekt från databasen
     private function __construct(int $id, string $title, User $author, Category $category, DateTime $createdAt, DateTime $updatedAt) {
+        parent::__construct($createdAt, $updatedAt);
         $this->id = $id;
         $this->title = $title;
         $this->author_id = $author->getId();
         $this->category_id = $category->getId();
-        $this->createdAt = $createdAt;
-        $this->updatedAt = $updatedAt;
     }
 
     /**
@@ -137,15 +134,5 @@ class Topic {
     public function getTitle(): string
     {
         return $this->title;
-    }
-
-    public function getCreatedAt(): DateTime
-    {
-        return $this->createdAt;
-    }
-
-    public function getUpdatedAt(): DateTime
-    {
-        return $this->updatedAt;
     }
 }
