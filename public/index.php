@@ -20,6 +20,9 @@ $router = new \Bramus\Router\Router();
 $router->setNamespace('\App\Controllers');
 // Generella routes
 $router->get('/', 'HomeController@index');
+$router->get('/profile', 'ProfileController@index');
+$router->post('/profile', 'ProfileController@store');
+$router->post('/update-password', 'ProfileController@updatePassword');
 
 // Kategori routes
 $router->get('/category/(\d+)', 'CategoryController@index');

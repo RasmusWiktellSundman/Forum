@@ -16,7 +16,7 @@ class InvalidUserInput extends Exception {
      *
      * @var array
      */
-    private array $validated;
+    private ?array $validated;
 
     public function __construct(array $errors, array $validated = null) {
         parent::__construct('Invalid user input', 400);

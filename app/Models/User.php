@@ -3,6 +3,7 @@ namespace App\Models;
 
 use App\Lib\Database;
 use App\Lib\Exceptions\DuplicateModelException;
+use App\Lib\Exceptions\InvalidUserInput;
 use DateTime;
 use InvalidArgumentException;
 use PDO;
@@ -33,39 +34,31 @@ class User {
      */
     public static function create(string $email, string $username, string $firstname, string $lastname, string $password, bool $admin = false): User
     {
-        // password_hash hashar lösenordet, samt saltar automatiskt.
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-        // Använder inte en loop för check av användarnamn/e-post då stavningen är olika (-en/-et), la till metod för validering av kolumn värde istället
-        // Kollar så användarnamn inte redan används
-        if(self::exsistsColumnValue('username', $username)) {
-            throw new DuplicateModelException('username', "Användarnamnet är upptaget");
-        }
-
-        // Kollar så e-posten inte redan används
-        if(self::exsistsColumnValue('email', $email)) {
-            throw new DuplicateModelException('email', "E-postadressen är upptagen");
-        }
-
-        // Sparar i databas
-        $conn = Database::getConnection();
-        $stmt = $conn->prepare("INSERT INTO user (email, username, firstname, lastname, password, admin, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW());");
-        $stmt->execute([$email, $username, $firstname, $lastname, $hashed_password, (int) $admin]);
-        $stmt->closeCursor();
-
-        // Returnera User objekt med angiven data
+        // Försöker skapa user objekt och utför därmed validering av data
         $now = new DateTime();
-        return new User(
-            (int) $conn->lastInsertId(),
+        $user = new User(
+            0,
             $email, 
             $username, 
             $firstname, 
             $lastname, 
-            $hashed_password, 
+            $password, 
             $now, 
-            $now, 
+            $now,
+            false, // Lösenordet är inte hashat, utan behöver hashas
             $admin
         );
+
+
+        // Sparar i databas
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("INSERT INTO user (email, username, firstname, lastname, password, admin, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW());");
+        $stmt->execute([$email, $username, $firstname, $lastname, $user->getHashedPassword(), (int) $admin]);
+        $stmt->closeCursor();
+
+        $user->setId((int) $conn->lastInsertId());
+        return $user;
     }
 
     /**
@@ -121,15 +114,15 @@ class User {
      * @param mixed $value Värdet att leta efter
      * @return boolean Om värdet finns i kolumnen
      */
-    public static function exsistsColumnValue(string $column, mixed $value): bool
+    public static function exsistsColumnValue(string $column, mixed $value, int $allowedUserId): bool
     {
         // En kolumn kan inte bindas i ett prepared statment, validerar därför att kolumnen finns.
         if(!in_array($column, self::$valid_db_columns, true)) {
             throw new InvalidArgumentException("Invalid column");
         }
 
-        $stmt = Database::getConnection()->prepare("SELECT COUNT(*) FROM user WHERE $column = ?;");
-        $stmt->execute([$value]);
+        $stmt = Database::getConnection()->prepare("SELECT COUNT(*) FROM user WHERE $column = ? AND id != ?;");
+        $stmt->execute([$value, $allowedUserId]);
         // Hämta antal rader från count
         $count = $stmt->fetchColumn();
         $stmt->closeCursor();
@@ -156,21 +149,54 @@ class User {
             $row['password'],
             $createdAt,
             $updatedAt,
+            true, // Lösenordet är redan hashat
             (bool) $row['admin']
         );
     }
 
     // Konstruktorn är privat då create ska användas av externa klasser, för att även lagras presistent.
-    private function __construct(int $id, string $email, string $username, string $firstname, string $lastname, string $hashed_password, DateTime $createdAt, DateTime $updatedAt, bool $admin = false) {
-        $this->id = $id;
-        $this->email = $email;
-        $this->username = $username;
-        $this->firstname = $firstname;
-        $this->lastname = $lastname;
-        $this->hashed_password = $hashed_password;
-        $this->admin = $admin;
-        $this->createdAt = $createdAt;
-        $this->updatedAt = $updatedAt;
+    private function __construct(int $id, string $email, string $username, string $firstname, string $lastname, string $password, DateTime $createdAt, DateTime $updatedAt, bool $passwordIsHashed, bool $admin = false) {
+        // Uppdaterar värdet med hjälp av loop, för att inte behöva upprepa try-catch för varje set metod, men ändå kunna få en lista på alla fel.
+        foreach (["id", "username", "email", "firstname", "lastname", "admin", "createdAt", "updatedAt"] as $property) {
+            try {
+                $setMethod = "set".$property;
+                $this->$setMethod($$property);
+            } catch (InvalidArgumentException | DuplicateModelException $ex) {
+                $errors[$property] = $ex->getMessage();
+            }
+        }
+
+        // Sätter lösenord, antingen ett redan hashat lösenord, eller ett som behöver hashas.
+        if($passwordIsHashed) {
+            $this->setHashedPassword($password);
+        } else {
+            // Använder setPassword som både hashar och sätter lösenordet
+            try {
+                $this->setPassword($password);
+            } catch (InvalidArgumentException $ex) {
+                $errors['password'] = $ex->getMessage();
+            }
+        }
+
+        if(!empty($errors)) {
+            throw new InvalidUserInput($errors);
+        }
+    }
+
+    /**
+     * Uppdaterar användarens databasrad
+     *
+     * @return void
+     */
+    public function update(): void
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->prepare("UPDATE user SET email=?, username=?, firstname=?, lastname=?, password=?, admin=?, updated_at=NOW() WHERE id=?;");
+        $stmt->execute([$this->email, $this->username, $this->firstname, $this->lastname, $this->hashed_password, (int) $this->admin, $this->id]);
+        $stmt->closeCursor();
+
+        // Sätter uppdateringstid till nu
+        $this->setUpdatedAt(new DateTime());
     }
 
     /**
@@ -193,33 +219,127 @@ class User {
         return $this->firstname . ' ' . $this->lastname . ' (' . $this->username . ')';
     }
 
-    // Getters
+    // Getters och setters
     public function getId(): int {
         return $this->id;
+    }
+
+    // Id ska vara permanent, men settern används av konstruktor
+    private function setId(int $id): void {
+        if($id < 0) {
+            throw new InvalidArgumentException("ID kan inte vara negativt");
+        }
+        $this->id = $id;
     }
     
     public function getEmail(): string {
         return $this->email;
     }
 
+    public function setEmail(string $email): void {
+        if($email == '') {
+            throw new InvalidArgumentException("E-post är obligatoriskt");
+        } else if(strlen($email) > 128) {
+            throw new InvalidArgumentException("E-post får inte vara mer än 128 tecken");
+        } else if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new InvalidArgumentException("Ogiltigt format på e-postaddress");
+        }
+
+        // Kontrollerar så e-posten inte redan används av annan användare
+        if(self::exsistsColumnValue('email', $email, $this->getId())) {
+            throw new DuplicateModelException('email', "E-postadressen är upptagen");
+        }
+        $this->email = $email;
+    }
+
     public function getUsername(): string {
         return $this->username;
+    }
+
+    public function setUsername(string $username): void {
+        if($username == '') {
+            throw new InvalidArgumentException("Användarnamn är obligatoriskt");
+        } else if(strlen($username) > 45) {
+            throw new InvalidArgumentException("Användarnamnet får inte vara mer än 45 tecken");
+        } else if(!preg_match('/^[\w_-]+$/', $username)) {
+            throw new InvalidArgumentException("Användarnamnet får endast innehålla a-z, A-Z, 0-9, - och _");
+        }
+
+        // Kontrollerar så användarnamn inte redan används av annan användare, id finns inte ifall användaren är ny
+        if(self::exsistsColumnValue('username', $username, $this->getId())) {
+            throw new DuplicateModelException('username', "Användarnamnet är upptaget");
+        }
+        $this->username = $username;
     }
 
     public function getFirstname(): string {
         return $this->firstname;
     }
 
+    public function setFirstname(string $firstname): void {
+        if($firstname == '') {
+            throw new InvalidArgumentException("Förnamn är obligatoriskt");
+        } else if(strlen($firstname) > 45) {
+            throw new InvalidArgumentException("Förnamnet får inte vara mer än 45 tecken");
+        } else if(!preg_match('/^[\wå-öÅ-Ö _-]+$/', $firstname)) {
+            throw new InvalidArgumentException("Förnamn får endast innehålla a-ö, A-Ö, 0-9, -, _ och mellanrum");
+        }
+        $this->firstname = $firstname;
+    }
+
     public function getLastname(): string {
         return $this->lastname;
+    }
+
+    public function setLastname(string $lastname): void {
+        if(!isset($lastname) || $lastname == '') {
+            throw new InvalidArgumentException("Efternamn är obligatoriskt");
+        } else if(strlen($lastname) > 45) {
+            throw new InvalidArgumentException("Efternamnet får inte vara mer än 45 tecken");
+        } else if(!preg_match('/^[\wå-öÅ-Ö _-]+$/', $lastname)) {
+            throw new InvalidArgumentException("Efternamn får endast innehålla a-z, A-Z, å-ö, Å-Ö, 0-9, -, _ och mellanrum");
+        }
+        $this->lastname = $lastname;
     }
 
     public function getHashedPassword(): string {
         return $this->hashed_password;
     }
 
+    /**
+     * Hashar och sätter det hashade lösenordet
+     *
+     * @param string $password Lösenord i klartext
+     * @return void
+     */
+    public function setPassword(string $password)
+    {
+        if($password == '') {
+            throw new InvalidArgumentException("Lösenord är obligatoriskt");
+        } else if(strlen($password) < 8) {
+            throw new InvalidArgumentException("Lösenordet måste innehålla minst åtta tecken");
+        }
+        // password_hash hashar lösenordet, samt saltar automatiskt.
+        $this->hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    /**
+     * Sätter ett redan hashat lösenord
+     *
+     * @param string $hashedPassword Hashat lösenord
+     * @return void
+     */
+    public function setHashedPassword(string $hashedPassword): void {
+        $this->hashed_password = $hashedPassword;
+    }
+
     public function isAdmin(): bool {
         return $this->admin;
+    }
+
+    public function setAdmin(bool $admin): void
+    {
+        $this->admin = $admin;
     }
 
     public function getCreatedAt(): DateTime
@@ -227,8 +347,20 @@ class User {
         return $this->createdAt;
     }
 
+    // Metoden är privat eftersom update eller create ska användas externt, för att synkronisera med databasen.
+    private function setCreatedAt(DateTime $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
     public function getUpdatedAt(): DateTime
     {
         return $this->updatedAt;
+    }
+
+    // Metoden är privat eftersom update eller create ska användas externt, för att synkronisera med databasen.
+    private function setUpdatedAt(DateTime $updatedAt): void
+    {
+        $this->createdAt = $updatedAt;
     }
 }
