@@ -53,7 +53,7 @@ class ProfileController {
         }
 
         // Uppdaterar profilbild
-        if(isset($_FILES['profile_image'])) {
+        if(!empty($_FILES['profile_image']['name'])) {
             try {
                 $user->setProfileImage($_FILES['profile_image']);
             } catch (InvalidArgumentException | DuplicateModelException $ex) {
