@@ -142,4 +142,32 @@ class ProfileController {
         'updatedPasswordSuccessfully' => true
         ]);
     }
+
+    /**
+     * Tar bort den inloggade användarens profilbild
+     *
+     * @return void
+     */
+    public function removeProfileImage(): void
+    {
+        // Kollar att användaren är inloggad
+        if(!Auth::isLoggedIn()) {
+            http_response_code(403);
+            renderView('errors/403', 'base');
+            return;
+        }
+
+        // Hämtar inloggad användare
+        $user = Auth::user();
+        
+        // Tar bort profilbild
+        $user->setProfileImage(null);
+        $user->update();
+
+        // Lyckades ta bort profilbilden
+        renderView('profile', 'base', [
+            'user' => Auth::user(),
+            'removedProfileImageSuccessfully' => true
+        ]);
+    }
 }

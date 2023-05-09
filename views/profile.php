@@ -57,4 +57,12 @@
         <?php } ?>
         <input type="submit" value="Uppdatera lösenord">
     </form>
+    <form action="<?php echo $_ENV['BASE_URL'] ?>/remove-profile-image" method="post" id="removeProfileImage" class="flex flex-column">
+        <h2>Ta bort profilbild</h2>
+
+        <?php if(isset($removedProfileImageSuccessfully)) { ?>
+            <p class="success">Profilbild borttagen!</p>
+        <?php } ?>
+        <input type="submit" value="Ta bort profilbild">
+    </form>
 </div>

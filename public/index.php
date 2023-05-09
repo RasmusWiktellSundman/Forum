@@ -23,6 +23,7 @@ $router->get('/', 'HomeController@index');
 $router->get('/profile', 'ProfileController@index');
 $router->post('/profile', 'ProfileController@store');
 $router->post('/update-password', 'ProfileController@updatePassword');
+$router->post('/remove-profile-image', 'ProfileController@removeProfileImage');
 
 // Kategori routes
 $router->get('/category/(\d+)', 'CategoryController@index');

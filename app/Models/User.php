@@ -198,15 +198,8 @@ class User extends Model {
     public function update(): void
     {
         $conn = Database::getConnection();
-        if(isset($this->profileImage) && isset($this->profileImageType)) {
-            $sql = "UPDATE user SET email=?, username=?, firstname=?, lastname=?, password=?, profile_image=?, profile_image_type=?, admin=?, updated_at=NOW() WHERE id=?;";
-            $values = [$this->email, $this->username, $this->firstname, $this->lastname, $this->hashed_password, $this->profileImage, $this->profileImageType, (int) $this->admin, $this->id];
-        } else {
-            $sql = "UPDATE user SET email=?, username=?, firstname=?, lastname=?, password=?, admin=?, updated_at=NOW() WHERE id=?;";
-            $values = [$this->email, $this->username, $this->firstname, $this->lastname, $this->hashed_password, (int) $this->admin, $this->id];
-        }
-        $stmt = $conn->prepare($sql);
-        $stmt->execute($values);
+        $stmt = $conn->prepare("UPDATE user SET email=?, username=?, firstname=?, lastname=?, password=?, profile_image=?, profile_image_type=?, admin=?, updated_at=NOW() WHERE id=?;");
+        $stmt->execute([$this->email, $this->username, $this->firstname, $this->lastname, $this->hashed_password, $this->profileImage, $this->profileImageType, (int) $this->admin, $this->id]);
         $stmt->closeCursor();
 
         // Sätter uppdateringstid till nu
@@ -384,11 +377,17 @@ class User extends Model {
     /**
      * Sätter profilbild
      *
-     * @param array $image Samma format som $_FILES, fast för en specifik input
+     * @param array $image Samma format som $_FILES, fast för en specifik input. Tar bort bilden ifall null givet
      * @return void
      */
-    public function setProfileImage(array $image): void
+    public function setProfileImage(?array $image): void
     {
+        // Tar bort profilbild
+        if($image == null) {
+            $this->profileImage = null;
+            $this->profileImageType = null;
+            return;
+        }
         // Valliderar att uppladdad fil är en bild (bara för att filändelsen är bildformat, måste det inte vara en bild)
         $check = getimagesize($image['tmp_name']);
         if(!$check) {
