@@ -19,26 +19,26 @@ use App\Models\User;
     <header>
         <nav>
             <ul>
-                <li><a href="<?php echo $_ENV['BASE_URL'] ?>">Hem</a></li>
+                <li><a href="<?php echo $_ENV['BASE_URL'] ?>" class="<?php if($_SERVER['REQUEST_URI'] == '/') echo 'active' ?>">Hem</a></li>
                 <?php
                 foreach (Category::getAll() as $category) {
                     if($category->getShowInNavigation()) {
                         $title = htmlspecialchars($category->getTitle());
                         $id = htmlspecialchars($category->getId());
                         ?>
-                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/category/<?php echo $id; ?>"><?php echo $title; ?></a></li>
+                        <li><a href="<?php echo $_ENV['BASE_URL'] ?>/category/<?php echo $id; ?>" class="<?php if(str_starts_with($_SERVER['REQUEST_URI'], '/category/'.$id)) echo 'active' ?>"><?php echo $title; ?></a></li>
                         <?php
                     }
                 }
                 if(Auth::isLoggedIn()) {
                     ?>
-                    <li><a href="<?php echo $_ENV['BASE_URL'] ?>/profile">Profil</a></li>
+                    <li><a href="<?php echo $_ENV['BASE_URL'] ?>/profile" class="<?php if($_SERVER['REQUEST_URI'] == '/profile') echo 'active' ?>">Profil</a></li>
                     <li><a href="<?php echo $_ENV['BASE_URL'] ?>/logout">Logga ut</a></li>
                     <?php
                 } else {
                     ?>
-                    <li><a href="<?php echo $_ENV['BASE_URL'] ?>/login">Logga in</a></li>
-                    <li><a href="<?php echo $_ENV['BASE_URL'] ?>/register">Registrera</a></li>
+                    <li><a href="<?php echo $_ENV['BASE_URL'] ?>/login" class="<?php if($_SERVER['REQUEST_URI'] == '/login') echo 'active' ?>">Logga in</a></li>
+                    <li><a href="<?php echo $_ENV['BASE_URL'] ?>/register" class="<?php if($_SERVER['REQUEST_URI'] == '/register') echo 'active' ?>">Registrera</a></li>
                     <?php
                 }
                 ?>

@@ -71,6 +71,10 @@ nav ul li:hover a {
   color: #5ccc61;
 }
 
+nav ul li a.active {
+  color: #5ccc61;
+}
+
 form {
   display: flex;
   flex-direction: column;
