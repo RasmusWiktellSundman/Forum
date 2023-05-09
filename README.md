@@ -33,4 +33,4 @@ https://github.com/bramus/router
 .htaccess från Laravel
 
 # Övrigt
-Satt upp autmoatisk inläsning av php klasser enligt https://vegibit.com/how-to-use-autoloading-in-php/
+Satt upp automatisk inläsning av php klasser enligt https://vegibit.com/how-to-use-autoloading-in-php/
